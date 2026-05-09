@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hospital System Pro</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#eef2f7}
+
+/* LOGIN */
+.center{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.box{
+  background:white;
+  padding:20px;
+  width:320px;
+  border-radius:10px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+input,button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+}
+
+button{
+  background:#0077cc;
+  color:white;
+  border:none;
+}
+
+/* HEADER */
+header{
+  background:#0077cc;
+  color:white;
+  text-align:center;
+  padding:10px;
+}
+
+/* DASHBOARD */
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:15px;
+}
+
+.card{
+  background:white;
+  padding:15px;
+  margin-top:10px;
+  border-radius:10px;
+}
+
+.delete{
+  background:red;
+  color:white;
+  border:none;
+  padding:5px;
+  margin-left:5px;
+}
+
+.print{
+  background:green;
+  color:white;
+  border:none;
+  padding:5px;
+  margin-left:5px;
+}
+
+.hidden{display:none}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="center">
+  <div class="box">
+    <h3>Hospital Login</h3>
+
+    <input id="user" placeholder="Username">
+    <input id="pass" type="password" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="app" class="hidden">
+
+<header>
+  <h3>Hospital Dashboard</h3>
+  <p id="role"></p>
+</header>
+
+<div class="container">
+
+<!-- PASSWORD CHANGE -->
+<div class="card">
+<h3>Change Password</h3>
+<input id="newpass" placeholder="New Password">
+<button onclick="changePass()">Change</button>
+</div>
+
+<!-- RECEPTION -->
+<div class="card" id="receptionBox">
+<h3>Reception - Usajili</h3>
+
+<input id="name" placeholder="Jina la mgonjwa">
+<input id="age" type="number" placeholder="Umri">
+<input id="service" placeholder="Huduma">
+<input id="pay" placeholder="Malipo">
+
+<button onclick="save()">Sajili</button>
+</div>
+
+<!-- LIST -->
+<div class="card">
+<h3>Records</h3>
+<ul id="list"></ul>
+</div>
+
+</div>
+</div>
+
+<script>
+
+let role="";
+let data=[];
+let password="";
+
+function login(){
+
+  let u=document.getElementById("user").value;
+  let p=document.getElementById("pass").value;
+
+  // ADMIN
+  if(u==="Mediccia666" && p==="m@666"){
+    role="admin";
+    password=p;
+    enter();
+  }
+
+  // DOCTOR
+  else if(p==="2026"){
+    role="doctor";
+    password=p;
+    enter();
+  }
+
+  // RECEPTION
+  else if(p==="2025@"){
+    role="reception";
+    password=p;
+    enter();
+  }
+
+  else{
+    alert("Login imekataa");
+  }
+}
+
+function enter(){
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  document.getElementById("role").innerText="Umeingia kama: "+role;
+
+  if(role==="doctor"){
+    document.getElementById("receptionBox").style.display="none";
+  }
+
+  show();
+}
+
+// SAVE PATIENT
+function save(){
+
+  if(role!=="reception"){
+    alert("Huna ruhusa");
+    return;
+  }
+
+  let n=document.getElementById("name").value;
+  let a=document.getElementById("age").value;
+  let s=document.getElementById("service").value;
+  let p=document.getElementById("pay").value;
+
+  data.push({n,a,s,p});
+  show();
+}
+
+// SHOW
+function show(){
+  let list=document.getElementById("list");
+  list.innerHTML="";
+
+  data.forEach((d,i)=>{
+
+    list.innerHTML+=`
+      <li>
+        ${d.n} | ${d.s} | ${d.p}
+
+        ${role==="admin"?`<button class="delete" onclick="del(${i})">Futa</button>`:""}
+
+        <button class="print" onclick="printInv(${i})">Invoice</button>
+      </li>
+    `;
+  });
+}
+
+// DELETE (ADMIN ONLY)
+function del(i){
+  if(role!=="admin") return;
+  data.splice(i,1);
+  show();
+}
+
+// INVOICE PRINT
+function printInv(i){
+  let d=data[i];
+
+  let w=window.open("");
+  w.document.write(`
+    <h2>Hospital Invoice</h2>
+    <hr>
+    <p>Jina: ${d.n}</p>
+    <p>Huduma: ${d.s}</p>
+    <p>Malipo: ${d.p}</p>
+    <hr>
+    <p>Asante</p>
+  `);
+  w.print();
+}
+
+// PASSWORD CHANGE
+function changePass(){
+  let np=document.getElementById("newpass").value;
+
+  if(!np){
+    alert("weka password mpya");
+    return;
+  }
+
+  password=np;
+  alert("Password imebadilishwa (session)");
+}
+
+</script>
+
+</body>
+</html>
