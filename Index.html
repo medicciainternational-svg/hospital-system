@@ -3,27 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hospital System Pro</title>
+<title>Mediccia Hospital System</title>
 
 <style>
 body{margin:0;font-family:Arial;background:#eef2f7}
 
-/* LOGIN */
-.center{
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-.box{
-  background:white;
-  padding:20px;
-  width:320px;
-  border-radius:10px;
-  box-shadow:0 2px 10px rgba(0,0,0,0.1);
+header{
+  background:#0077cc;
+  color:white;
+  text-align:center;
+  padding:15px;
 }
 
-input,button{
+.container{padding:15px}
+
+.card{
+  background:white;
+  padding:15px;
+  margin-top:10px;
+  border-radius:10px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+input,select,button{
   width:100%;
   padding:10px;
   margin-top:10px;
@@ -33,56 +35,22 @@ button{
   background:#0077cc;
   color:white;
   border:none;
-}
-
-/* HEADER */
-header{
-  background:#0077cc;
-  color:white;
-  text-align:center;
-  padding:10px;
-}
-
-/* DASHBOARD */
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:15px;
-}
-
-.card{
-  background:white;
-  padding:15px;
-  margin-top:10px;
-  border-radius:10px;
-}
-
-.delete{
-  background:red;
-  color:white;
-  border:none;
-  padding:5px;
-  margin-left:5px;
-}
-
-.print{
-  background:green;
-  color:white;
-  border:none;
-  padding:5px;
-  margin-left:5px;
+  cursor:pointer;
 }
 
 .hidden{display:none}
+
+.delete{background:red}
+.print{background:green}
 </style>
 </head>
 
 <body>
 
 <!-- LOGIN -->
-<div id="login" class="center">
-  <div class="box">
-    <h3>Hospital Login</h3>
+<div id="login" class="container">
+  <div class="card">
+    <h2>Hospital Login</h2>
 
     <input id="user" placeholder="Username">
     <input id="pass" type="password" placeholder="Password">
@@ -91,12 +59,12 @@ header{
   </div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="app" class="hidden">
+<!-- SYSTEM -->
+<div id="system" class="hidden">
 
 <header>
-  <h3>Hospital Dashboard</h3>
-  <p id="role"></p>
+  <h2>Mediccia Hospital Dashboard</h2>
+  <p id="roleText"></p>
 </header>
 
 <div class="container">
@@ -110,19 +78,25 @@ header{
 
 <!-- RECEPTION -->
 <div class="card" id="receptionBox">
-<h3>Reception - Usajili</h3>
+<h3>Reception - Sajili Mgonjwa</h3>
 
 <input id="name" placeholder="Jina la mgonjwa">
 <input id="age" type="number" placeholder="Umri">
-<input id="service" placeholder="Huduma">
-<input id="pay" placeholder="Malipo">
+
+<select id="service">
+  <option>Vipimo</option>
+  <option>Dawa</option>
+  <option>Full Body Checkup</option>
+</select>
+
+<input id="pay" type="number" placeholder="Kiasi kilicholipwa">
 
 <button onclick="save()">Sajili</button>
 </div>
 
-<!-- LIST -->
+<!-- RECORDS -->
 <div class="card">
-<h3>Records</h3>
+<h3>Hospital Records</h3>
 <ul id="list"></ul>
 </div>
 
@@ -133,34 +107,25 @@ header{
 
 let role="";
 let data=[];
-let password="";
 
+// LOGIN
 function login(){
 
   let u=document.getElementById("user").value;
   let p=document.getElementById("pass").value;
 
-  // ADMIN
   if(u==="Mediccia666" && p==="m@666"){
     role="admin";
-    password=p;
     enter();
   }
-
-  // DOCTOR
   else if(p==="2026"){
     role="doctor";
-    password=p;
     enter();
   }
-
-  // RECEPTION
   else if(p==="2025@"){
     role="reception";
-    password=p;
     enter();
   }
-
   else{
     alert("Login imekataa");
   }
@@ -168,8 +133,8 @@ function login(){
 
 function enter(){
   document.getElementById("login").classList.add("hidden");
-  document.getElementById("app").classList.remove("hidden");
-  document.getElementById("role").innerText="Umeingia kama: "+role;
+  document.getElementById("system").classList.remove("hidden");
+  document.getElementById("roleText").innerText="Role: "+role;
 
   if(role==="doctor"){
     document.getElementById("receptionBox").style.display="none";
@@ -191,12 +156,19 @@ function save(){
   let s=document.getElementById("service").value;
   let p=document.getElementById("pay").value;
 
-  data.push({n,a,s,p});
+  data.push({
+    name:n,
+    age:a,
+    service:s,
+    payment:p
+  });
+
   show();
 }
 
-// SHOW
+// SHOW RECORDS
 function show(){
+
   let list=document.getElementById("list");
   list.innerHTML="";
 
@@ -204,11 +176,13 @@ function show(){
 
     list.innerHTML+=`
       <li>
-        ${d.n} | ${d.s} | ${d.p}
+        <b>${d.name}</b> | Umri: ${d.age} |
+        Huduma: ${d.service} |
+        💰 ${d.payment}
 
         ${role==="admin"?`<button class="delete" onclick="del(${i})">Futa</button>`:""}
 
-        <button class="print" onclick="printInv(${i})">Invoice</button>
+        <button class="print" onclick="printInvoice(${i})">Invoice</button>
       </li>
     `;
   });
@@ -222,33 +196,27 @@ function del(i){
 }
 
 // INVOICE PRINT
-function printInv(i){
+function printInvoice(i){
   let d=data[i];
 
   let w=window.open("");
   w.document.write(`
     <h2>Hospital Invoice</h2>
     <hr>
-    <p>Jina: ${d.n}</p>
-    <p>Huduma: ${d.s}</p>
-    <p>Malipo: ${d.p}</p>
+    <p>Jina: ${d.name}</p>
+    <p>Umri: ${d.age}</p>
+    <p>Huduma: ${d.service}</p>
+    <p>Kiasi: ${d.payment}</p>
     <hr>
-    <p>Asante</p>
+    <p>Asante kwa huduma</p>
   `);
   w.print();
 }
 
-// PASSWORD CHANGE
+// PASSWORD CHANGE (simple session)
 function changePass(){
   let np=document.getElementById("newpass").value;
-
-  if(!np){
-    alert("weka password mpya");
-    return;
-  }
-
-  password=np;
-  alert("Password imebadilishwa (session)");
+  alert("Password imebadilishwa (session): " + np);
 }
 
 </script>
